@@ -8,7 +8,6 @@ Student::Student(unsigned int id, string fam){
     this->id = id;
     this->fio = fam;
     this->group = NULL;
-    num = 0;
     this->avg = -1;
 }
 
@@ -17,7 +16,6 @@ Student::Student(unsigned int id, string fam, Group* group){
     this->fio = fam;
     this->group = group;
     group->add(this);
-    num = 0;
     this->avg = -1;
 }
 
@@ -27,7 +25,6 @@ Student::Student(unsigned int id, string fam, Group* group, bool heading){
     this->group = group;
     this->heading = heading;
     group->add(this);
-    num = 0;
     this->avg = -1;
 }
 
@@ -38,8 +35,6 @@ void Student::attend(Group* group){
 
 void Student::addmark(unsigned int mark){
     marks.push_back(mark);
-    num ++;
-    //calcavg();
 }
 
 vector<unsigned int> Student::getmarks() const{
@@ -48,17 +43,17 @@ vector<unsigned int> Student::getmarks() const{
     return ans;
 }
 size_t Student::getnum() const{
-    return this->num;
+    return this->marks.size();
 }
 
 void Student::calcavg() {
-    if(num==0)
+    if(marks.size()==0)
         this->avg = -1;
     else {
         double ans = 0;
-        for (int i = 0; i < num; i++)
+        for (int i = 0; i < marks.size(); i++)
             ans = ans + marks[i];
-        ans = ans / num;
+        ans = ans / marks.size();
         this->avg = ans;
     }
 }
@@ -66,13 +61,13 @@ Group* Student::getgroup() const {
     return this->group;
 }
 double Student::getavg() const {
-    if(num==0)
+    if(marks.size()==0)
         return -1;
     else {
         double ans = 0;
-        for (int i = 0; i < num; i++)
+        for (int i = 0; i < marks.size(); i++)
             ans = ans + marks[i];
-        ans = ans / num;
+        ans = ans / marks.size();
         return ans;
     }
 }
@@ -99,7 +94,7 @@ Group::Group(string title) {
 }
 
 void Group::add(Student *st) {
-    for(int i=1; i < num; i++){
+    for(int i=1; i < list.size(); i++){
         if(st->getd() == list[i]->getd())
             if(st->getfio() == list[i]->getfio()) {
                 cout << "Probabilty of Student" << st->getfio() << "beeing already in group";
@@ -112,13 +107,12 @@ void Group::add(Student *st) {
 
                 while(k<1000000){
                     int p = 0;
-                    for(int i=1; i < num; i++)
+                    for(int i=1; i < list.size(); i++)
                         if(list[i]->getd()!=k)
                             p++;
-                    if(p == this->num){
+                    if(p == this->list.size()){
                         st->setd(k);
                         list.push_back(st);
-                        num++;
                         return;
                     }
                     k++;
@@ -130,14 +124,13 @@ void Group::add(Student *st) {
             }
     }
     list.push_back(st);
-    num++;
     return;
 }
 
 void Group::voting(){
     double avgmax = -1;
     head = list[0];
-    for(int i=0; i < num; i++)
+    for(int i=0; i < list.size(); i++)
         if(avgmax <= list[i]->getavg()) {
             avgmax = list[i]->getavg();
             head = list[i];
@@ -147,7 +140,7 @@ void Group::voting(){
 }
 
 void Group::print() const {
-    for(int i=0; i < num; i++){
+    for(int i=0; i < list.size(); i++){
         if(list[i]==head) cout <<"Head ";
         cout <<"id: "<<list[i]->getd() << "   ; FIO: " << list[i]->getfio();
         cout << endl;
@@ -156,7 +149,7 @@ void Group::print() const {
 
 vector<Student*> Group::search(string fio) const {
     vector<Student*> res;
-    for(int i=0; i < num; i++){
+    for(int i=0; i < list.size(); i++){
        if(list[i]->getfio() == fio)
            res.push_back(list[i]);
     }
@@ -165,7 +158,7 @@ vector<Student*> Group::search(string fio) const {
 }
 
 Student* Group::search(unsigned int id) const {
-    for(int i=0; i < num; i++){
+    for(int i=0; i < list.size(); i++){
         if(list[i]->getd() == id)
             return list[i];
     }
@@ -174,7 +167,7 @@ Student* Group::search(unsigned int id) const {
 
 vector<int> Group::search_(string fio) const {
     vector<int> res;
-    for(int i=0; i < num; i++){
+    for(int i=0; i < list.size(); i++){
         if(list[i]->getfio() == fio)
             res.push_back(i);
     }
@@ -187,7 +180,7 @@ string Group::get_tittle() const {
 }
 
 int Group::search_(unsigned int id) const {
-    for(int i=0; i < num; i++){
+    for(int i=0; i < list.size(); i++){
         if(list[i]->getd() == id)
             return i;
     }
@@ -198,20 +191,20 @@ int Group::search_(unsigned int id) const {
 double Group::getavg() const {
     double sum = 0;
     int k = 0;
-    for(int i=0; i < num; i++) {
+    for(int i=0; i < list.size(); i++) {
         if((list[i]->getmarks()).size() == 0)
             k++;
         else
             sum = sum + list[i]->getavg();
     }
-    sum = sum / (num-k);
+    sum = sum / (list.size()-k);
     return sum;
 }
 
 double Group::getavg2() const {
     double sum = 0;
     int n = 0;
-    for(int i=0; i < num; i++) {
+    for(int i=0; i < list.size(); i++) {
         for (int j = 0; j < list[i]->getnum(); j++)
             sum = sum + (list[i]->getmarks())[j];
         n = n + (list[i]->getmarks()).size();
@@ -224,11 +217,9 @@ void Group::exclude(Student* st) {
     int k = this->search_(st->getd());
     if(head != list[k]) {
         list.erase(list.begin() + k);
-        num = num - 1;
     }
     else
         list.erase(list.begin() + k);
-        num = num - 1;
         voting();
 }
 
