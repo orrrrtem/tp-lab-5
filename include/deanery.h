@@ -21,7 +21,6 @@ private:
     string fio;
     Group* group;
     vector<unsigned int> marks;
-    size_t num ;
     double avg;
     bool heading;
 public:
@@ -46,7 +45,6 @@ class Group{
 private:
     string title;
     vector<Student*> list;
-    size_t num = list.size();
     Student* head;
     vector<int> search_(string fio) const;
     int search_(unsigned int id) const;
